@@ -1,0 +1,8 @@
+# Where to start collection?
+target=http://www.reddit.com/r/worldnews
+
+# Which files are okay to download and index
+collect=pdf,doc,docx,rtf,txt,exe
+
+# Go very slowly and introduce random timing
+paranoid=true

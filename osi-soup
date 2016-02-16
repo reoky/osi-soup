@@ -1,0 +1,143 @@
+#!/usr/bin/python3
+import os
+import code
+import yaml
+import urllib3
+from bs4 import BeautifulSoup
+from django.core.validators import URLValidator
+from django.core.exceptions import ValidationError
+
+##########################################################################
+# OSI SOUP: Collect -> Harvest -> Record                                 #
+##########################################################################
+# OSI Soup can be used to locate data which may have been inadvertantly  #
+# posted on a website. This open source information is 'open', because   #
+# it's already publically facing, and likely being indexed by search     #
+# engines.                                                               #
+#                                                                        #
+# This tool is MIT License software, and it's free, specifically created #
+# to bring value to organizations looking to improve their resiliance to #
+# common hacking techniques.                                             #
+##########################################################################
+
+# SoupConfig: Handles loading configuration values from the disk
+class SoupConfig:
+    name = ""
+    target = ""
+    collect = ""
+    paranoid = ""
+
+    # Load config file from the disk
+    def __init__(self, name=None, target=None, collect=None, paranoid=None):
+
+        if (target and collect and paranoid):
+            this.name = name
+            this.target = targeth
+            this.collect = collect
+            this.paranoid = paranoid
+
+
+    # save a new config with the current name replacing any with the same name
+    def save():
+        print("[osi-soup] - SoupConfig saved a new profile which can be run with osi-soup run " + this.name)
+
+
+# SoupRecorder: Handles logging and report writing
+class SoupRecorder:
+
+    config = SoupConfig()
+
+    # Constructer: 
+    def __init__(self, config):
+        print "[osi-soup] - SoupRecorder is ready to log whatever happens"
+
+    def record(source, msg):
+
+    def log(source, msg):
+        logfile = open("", "w")
+
+# SoupHarvest takes in large chunks of HTML and produces files and anomalies
+class SoupHarvest:
+
+    # Constructor
+    def __init__(self, name):
+        print "[osi-soup] - SoupHarvest module is ready to chomp data"
+
+    def processPage(content):
+        print "[osi-soup] - Harvesting data from "
+
+class SoupCrawl:
+
+    # Interal Data Structures
+    crawlQueue = [];
+    target = ""
+    paranoia = False;
+
+    # Constructor
+    def __init__(self, target, paranoia, robots=True):
+        print "init 2"
+
+    # Method for writing interesting data out to a file
+    def record(type, value, url):
+
+        # type ssn
+        # type tel
+        # type
+        return;
+
+    # The crawler found a file that can be downloaded
+    # and so it shall be placed in data as well
+    def download(url):
+        record("download",)
+        return;
+
+    # Method/thread which scrapes a single page and
+    # records all the interesting stuff
+    # returns: list of discovered URLs
+    def scrape(target):
+        result = []
+
+        # Append discovered URLs
+        result.append("https://www.duckduckgo.com/")
+
+        return result;
+            
+    def validateURL(url):
+        val = URLValidator(verify_exists=True)
+        try:
+            val(url)
+            return True
+        except ValidationError:
+            print("[osi-soup] - Invalid URL: " + url)
+        return False
+
+# What we show the user when shit breaks
+def printUsage():
+    print("Usage:")
+    print("----------------------------")
+    print("ex: ./osi-soup run <profile>")
+    print("    ./osi-soup make <profile>")
+    print("    ./osi-soup purge <profile>")
+
+# Build a yaml config for a new profile so that
+# the user doesn't have to
+def makeProfile(name):
+    name = ""
+    target = ""
+    collect = ""
+    robots = ""
+    paranoid = ""
+
+    while not validateURL(target):
+    target = input("Enter a web domain for this profile: ")
+
+    while not collect:
+    domain = input("Enter comma-delimited file extensions to download (ex: pdf,exe,doc): ")
+
+    while not (robots == "y" or robots == "n"):
+    robots = input("Do we care about obeying robots.txt? [y/n]: ")
+
+    while not (paranoid == "y" or paranoid == "n"):
+    paranoid = input("Turn paranoia-mode on?(random delays/slow execution) [y/n]: ")
+
+    SoupConfig(name, target, collect, paranoid).save()
