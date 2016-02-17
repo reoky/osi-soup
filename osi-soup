@@ -1,6 +1,9 @@
 #!/usr/bin/python3
-import os
-import code
+
+# Base Modules
+import os, io, sys, time, re, code
+
+# Extended Modules
 import yaml
 import urllib3
 from bs4 import BeautifulSoup
@@ -8,7 +11,7 @@ from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError
 
 ##########################################################################
-# OSI SOUP: Collect -> Harvest -> Record                                 #
+# OSI SOUP: Collect -> Harvest -> Record                         # reoky #
 ##########################################################################
 # OSI Soup can be used to locate data which may have been inadvertantly  #
 # posted on a website. This open source information is 'open', because   #
@@ -22,49 +25,62 @@ from django.core.exceptions import ValidationError
 
 # SoupConfig: Handles loading configuration values from the disk
 class SoupConfig:
-    name = ""
-    target = ""
-    collect = ""
-    paranoid = ""
 
-    # Load config file from the disk
-    def __init__(self, name=None, target=None, collect=None, paranoid=None):
+    # Configuration Dictionary
+    config = {
+        "name":"",
+        "target":"",
+        "collect":"",
+        "paranoid":""
+    }
 
-        if (target and collect and paranoid):
-            this.name = name
-            this.target = targeth
-            this.collect = collect
-            this.paranoid = paranoid
+    def __init__(self, config=None):
+        self.name = name
 
+        # We are going to write a new config from these params
+        if (config):
+            try:
+                with open("config/" + self.name, "w") as cf:
+                    yaml.dump(config, cf, default_flow_style=False)
+                    print("[osi-soup] - SoupConfig saved a new profile which can be run with osi-soup run " + self.name)
+            except Exception as e:
+                print("[osi-soup] - I couldn't load the config file: config/" + self.name)
+                print("[osi-soup] - Error:" + e)
+            return
 
-    # save a new config with the current name replacing any with the same name
-    def save():
-        print("[osi-soup] - SoupConfig saved a new profile which can be run with osi-soup run " + this.name)
+        # We are going to open an existing config file
+        with open("config/" + name, "r") as cf:
+            cf = yaml.load(config)
 
 
 # SoupRecorder: Handles logging and report writing
 class SoupRecorder:
+    config = ""
 
-    config = SoupConfig()
-
-    # Constructer: 
     def __init__(self, config):
-        print "[osi-soup] - SoupRecorder is ready to log whatever happens"
+        self.config = config
+        print("[osi-soup] - SoupRecorder is ready to log whatever happens")
+        log("");
 
-    def record(source, msg):
-
+    # Report CSV: ex ("Found SSN", "index.html", "242-2561-141412"
+    def record(source, msg, location, value):
+        with open("data/" + self.config.name + "/report.csv", "wt") as reportFile:
+            reportFile.write(msg + "," + location + "," + value)
+        return
+    # Log Text
     def log(source, msg):
-        logfile = open("", "w")
+        with open("log.txt", "wt") as logFile:
+            logFile.write("[osi-soup] - " + int(time.time()) + ": " + msg)
 
 # SoupHarvest takes in large chunks of HTML and produces files and anomalies
 class SoupHarvest:
 
     # Constructor
     def __init__(self, name):
-        print "[osi-soup] - SoupHarvest module is ready to chomp data"
+        print("[osi-soup] - SoupHarvest module is ready to chomp data")
 
     def processPage(content):
-        print "[osi-soup] - Harvesting data from "
+        print("[osi-soup] - Harvesting data from another page")
 
 class SoupCrawl:
 
@@ -75,14 +91,13 @@ class SoupCrawl:
 
     # Constructor
     def __init__(self, target, paranoia, robots=True):
-        print "init 2"
+        print("[osi-soup] - Started up a crawler instance")
 
     # Method for writing interesting data out to a file
     def record(type, value, url):
 
         # type ssn
         # type tel
-        # type
         return;
 
     # The crawler found a file that can be downloaded
@@ -99,25 +114,25 @@ class SoupCrawl:
 
         # Append discovered URLs
         result.append("https://www.duckduckgo.com/")
-
         return result;
             
-    def validateURL(url):
-        val = URLValidator(verify_exists=True)
-        try:
-            val(url)
-            return True
-        except ValidationError:
-            print("[osi-soup] - Invalid URL: " + url)
-        return False
 
 # What we show the user when shit breaks
 def printUsage():
+    print("\nosi-soup can crawl a website looking for interesting data..\n")
     print("Usage:")
     print("----------------------------")
     print("ex: ./osi-soup run <profile>")
     print("    ./osi-soup make <profile>")
     print("    ./osi-soup purge <profile>")
+    print("    ./osi-soup show <profile>")
+    print("    ./osi-soup list profiles")
+
+# Uses a library to determine if a URL is valid or not
+def validateURL(url):
+    if re.match("^(http|https){1}:\/\/", url):
+        return True
+    return False
 
 # Build a yaml config for a new profile so that
 # the user doesn't have to
@@ -129,15 +144,68 @@ def makeProfile(name):
     paranoid = ""
 
     while not validateURL(target):
-    target = input("Enter a web domain for this profile: ")
+        target = input("Enter a web domain for this profile: ")
 
     while not collect:
-    domain = input("Enter comma-delimited file extensions to download (ex: pdf,exe,doc): ")
+        collect = input("Enter comma-delimited file extensions to download (ex: pdf,exe,doc): ")
 
     while not (robots == "y" or robots == "n"):
-    robots = input("Do we care about obeying robots.txt? [y/n]: ")
+        robots = input("Do we care about obeying robots.txt? [y/n]: ")
 
     while not (paranoid == "y" or paranoid == "n"):
-    paranoid = input("Turn paranoia-mode on?(random delays/slow execution) [y/n]: ")
+        paranoid = input("Turn paranoia-mode on?(random delays/slow execution) [y/n]: ")
 
-    SoupConfig(name, target, collect, paranoid).save()
+    # Configuration Dictionary
+    config = {
+        "name": name,
+        "target": target,
+        "collect": collect,
+        "paranoid": paranoid
+    }
+
+    # Save a new config
+    SoupConfig(config)
+
+### OSI SOUP ###
+###   MAIN   ###
+if not os.path.exists("data"):
+    os.makedirs("data")
+if not os.path.exists("config"):
+    os.makedirs("config")
+if not os.path.exists("log"):
+    os.makedirs("log")
+
+if (len(sys.argv) <= 2):
+    print("[osi-soup] - Not enough arguments supplied")
+    printUsage()
+    exit()
+
+name = sys.argv[len(sys.argv)-1]
+
+if not re.match("^(\w|-)+$", name):
+    print("[osi-soup] - Name is not a-zA-Z0-9 or '-'")
+    exit()
+
+for arg in sys.argv:
+    if (arg == "make" or arg == "add" or arg == "create"):
+        makeProfile(name)
+
+    if (arg == "run" or arg == "exec" or arg == "start"):
+        print("[osi-soup] - Running profile: " + name)
+
+    if (arg == "remove" or arg == "del" or arg == "rm"):
+        print("[osi-soup] - Removing the profile: " + name)
+        os.remove("config/" + name)
+
+    if (arg == "list"):
+        print("[osi-soup] - Listing profiles: " + name)
+        profiles = os.listdir('config')
+        print("osi-soup profiles")
+        print("-----------------")
+        for profile in profiles:
+            print(profile)
+
+    if (arg == "show" or arg == "display"):
+        with open("config/" + name, "rt") as cf:
+            cf = cf.read()
+            print(cf)
