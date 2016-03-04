@@ -89,7 +89,7 @@ class SoupRecorder:
             print("[" + str(int(time.time())) + "] " + msg)
 
 class SoupHarvest:
-    target = ""        # The initial page to scrape
+    target = ""        # The initial page
     pool = []          # Thread pool where our threads will be kept
     queue = []         # Link queue where discovered links go
     robots = True      # Should we obey robots.txt disallow entries?
